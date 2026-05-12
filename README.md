@@ -1,4 +1,4 @@
-# ArXiv MCP Server
+# arXiv MCP Server
 
 Research paper discovery and retrieval over the Model Context Protocol (MCP).
 
