@@ -18,7 +18,7 @@ Researchers and AI agents lack a standardized way to programmatically search, re
 
 ## 🚀 Live Demo(Linkedin post with Live working Video)
 
-   [Click here to view the live working demo](https://www.linkedin.com/feed/update/urn:li:activity:7459940130636627968/)
+-> [Click here to view the live working demo](https://www.linkedin.com/feed/update/urn:li:activity:7459940130636627968/)
 
 ---
 
