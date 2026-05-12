@@ -20,7 +20,7 @@ Researchers and AI agents lack a standardized way to programmatically search, re
 
 [Click here to view the live working demo](https://www.linkedin.com/feed/update/urn:li:activity:7459940130636627968/)
 
----
+```
 
 ## Architecture
 
