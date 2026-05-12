@@ -14,12 +14,11 @@ Research paper discovery and retrieval over the Model Context Protocol (MCP).
 
 Researchers and AI agents lack a standardized way to programmatically search, retrieve, and read scientific papers from arXiv without manual copy-pasting or custom scrapers. This server exposes arXiv's research corpus as structured MCP tools, enabling any MCP-compatible AI client to autonomously navigate and reason over scientific literature in real time.
 
+---
 
 ## 🚀 Live Demo(Linkedin post with Live working Video)
 
 [Click here to view the live working demo](https://www.linkedin.com/feed/update/urn:li:activity:7459940130636627968/)
-
----
 
 ## Architecture
 
