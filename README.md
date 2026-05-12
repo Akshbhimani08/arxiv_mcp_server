@@ -2,7 +2,11 @@
 
 Research paper discovery and retrieval over the Model Context Protocol (MCP).
 
-![Python 3.13](https://img.shields.io/badge/Python-3.13-blue?logo=python) ![FastMCP](https://img.shields.io/badge/FastMCP-3.2.4-green) ![MCP](https://img.shields.io/badge/Protocol-MCP-purple) ![Deployed](https://img.shields.io/badge/Deployed-Render-orange) ![arXiv](https://img.shields.io/badge/Source-arXiv-red)
+[![Python 3.13](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/downloads/release/python-3130/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-3.2.4-green)](https://github.com/jlowin/fastmcp)
+[![MCP](https://img.shields.io/badge/Protocol-MCP-purple)](https://modelcontextprotocol.io/)
+[![Deployed](https://img.shields.io/badge/Deployed-Render-orange)](https://arxiv-mcp-server-1jtq.onrender.com/mcp)
+[![arXiv](https://img.shields.io/badge/Source-arXiv-red)](https://arxiv.org/)
 
 ---
 
@@ -124,6 +128,98 @@ Server URL: https://arxiv-mcp-server-1jtq.onrender.com/mcp
 ```
 
 No local setup required — connect any MCP-compatible client directly to the URL above.
+
+---
+
+## JSON-RPC 2.0 — The Data Transport Layer
+
+The Model Context Protocol uses **[JSON-RPC 2.0](https://www.jsonrpc.org/specification)** as its underlying data transport layer. Every message exchanged between an MCP client and this server is a JSON-RPC 2.0 envelope.
+
+### What is JSON-RPC 2.0?
+
+JSON-RPC 2.0 is a stateless, lightweight remote procedure call (RPC) protocol encoded in JSON. It defines a strict message structure so any client can call any server method without knowing the underlying transport (HTTP, WebSocket, SSE, stdio).
+
+### Message Structure
+
+**Request** (client → server):
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_arxiv",
+    "arguments": { "query": "transformer attention mechanism", "max_results": 5 }
+  }
+}
+```
+
+**Success Response** (server → client):
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      { "type": "text", "text": "Found 5 papers on transformer attention..." }
+    ]
+  }
+}
+```
+
+**Error Response** (server → client):
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32602,
+    "message": "Invalid params",
+    "data": "Field 'query' is required"
+  }
+}
+```
+
+**Notification** (fire-and-forget, no `id`, no response expected):
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/progress",
+  "params": { "progressToken": "abc123", "progress": 50, "total": 100 }
+}
+```
+
+### Key Rules
+
+| Rule | Detail |
+|------|--------|
+| `"jsonrpc": "2.0"` | **Required** on every message |
+| `id` | Present on requests; must be echoed in the matching response. Omit for notifications |
+| `method` | String naming the procedure (e.g. `tools/call`, `tools/list`) |
+| `params` | Optional object or array of arguments |
+| `result` **xor** `error` | A response carries exactly one of these, never both |
+
+### Standard Error Codes
+
+| Code | Meaning |
+|------|---------|
+| `-32700` | Parse error — invalid JSON |
+| `-32600` | Invalid request — missing required fields |
+| `-32601` | Method not found |
+| `-32602` | Invalid params |
+| `-32603` | Internal error |
+| `-32000` to `-32099` | Server-defined application errors |
+
+### How MCP Uses JSON-RPC 2.0
+
+MCP is **transport-agnostic**: the same JSON-RPC messages flow over:
+- **SSE (HTTP)** — used by this server (and Claude Desktop, Cursor, etc.)
+- **stdio** — used for local subprocess servers
+- **WebSocket** — used by some browser-based clients
+
+FastMCP handles all serialisation and routing automatically. When you call `search_arxiv`, FastMCP wraps your tool result in a `tools/call` JSON-RPC response before sending it back over SSE — you never have to write the envelope yourself.
+
+> **Spec**: https://www.jsonrpc.org/specification
 
 ---
 
